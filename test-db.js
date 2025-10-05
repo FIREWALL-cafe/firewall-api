@@ -1,5 +1,5 @@
 // Simple database connection test
-require('dotenv').config({ path: '.env.local' });
+require('dotenv-flow').config();
 
 const { query } = require('./lib/db');
 

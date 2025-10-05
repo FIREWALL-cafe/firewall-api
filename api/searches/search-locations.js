@@ -3,7 +3,7 @@ const { allowCors } = require('../../lib/cors');
 const { query } = require('../../lib/db');
 
 // Import event data from the main API directory
-const eventData = require('../../../api/event-data.js');
+const eventData = require('../event-data.js');
 
 async function handler(req, res) {
   try {

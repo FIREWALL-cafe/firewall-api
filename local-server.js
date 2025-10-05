@@ -1,5 +1,5 @@
 // Simple local server to test Vercel functions
-require('dotenv').config({ path: '.env.local' });
+require('dotenv-flow').config();
 
 const http = require('http');
 const url = require('url');

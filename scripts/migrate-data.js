@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Data migration script from current PostgreSQL to Vercel Postgres
-require('dotenv').config({ path: '.env.local' });
+require('dotenv-flow').config();
 
 const { Pool } = require('pg');
 

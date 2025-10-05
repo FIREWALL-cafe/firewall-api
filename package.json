@@ -16,6 +16,7 @@
     "aws-sdk": "^2.1500.0",
     "axios": "^1.6.2",
     "dotenv": "^16.6.1",
+    "dotenv-flow": "^4.1.0",
     "pg": "^8.11.3"
   },
   "devDependencies": {

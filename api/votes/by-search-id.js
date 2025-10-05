@@ -3,7 +3,7 @@ const { allowCors } = require('../../lib/cors');
 const { query } = require('../../lib/db');
 
 // Import queryBuilder from main API
-const { getFieldSet } = require('../../../api/queryBuilder');
+const { getFieldSet } = require('../queryBuilder');
 
 async function handler(req, res) {
   try {
