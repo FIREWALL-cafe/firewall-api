@@ -1,6 +1,9 @@
 # Firewall Cafe API - Vercel Serverless Functions
 
-This is the Vercel serverless functions version of the Firewall Cafe API, migrated from the Express.js server.
+Serverless API for the Firewall Cafe project, providing search, analytics, voting, and image management endpoints.
+
+**Production:** https://firewall-api.vercel.app
+**GitHub:** https://github.com/FIREWALL-cafe/firewall-api
 
 ## Setup
 
@@ -10,137 +13,187 @@ npm install
 ```
 
 ### 2. Environment Variables
-Copy `.env.example` to `.env.local` and fill in your values:
+The project uses `dotenv-flow` for environment-specific configuration. Create the appropriate `.env` files:
+
 ```bash
-cp .env.example .env.local
+# .env.local (local overrides, gitignored)
+POSTGRES_URL=postgresql://user:pass@host:5432/firewall
+POSTGRES_URL_NON_POOLING=postgresql://user:pass@host:5432/firewall
+API_SECRET=your_secret_key_here
+DO_SPACES_ENDPOINT=nyc3.digitaloceanspaces.com
+DO_SPACES_KEY=your_do_key
+DO_SPACES_SECRET=your_do_secret
+DO_SPACES_BUCKET=your_bucket_name
 ```
 
-Required environment variables:
-- `DATABASE_URL` - PostgreSQL connection string
-- `API_SECRET` - Secret key for authenticated endpoints
-- `DIGITAL_OCEAN_SPACES_KEY` - Digital Ocean Spaces access key
-- `DIGITAL_OCEAN_SPACES_SECRET` - Digital Ocean Spaces secret key
+**Environment file loading order:**
+1. `.env` (default, committed)
+2. `.env.local` (local overrides, gitignored)
+3. `.env.development` (dev-specific)
+4. `.env.development.local` (dev local overrides)
 
 ### 3. Local Development
 ```bash
 npm run dev
 ```
 
-This will start the Vercel development server at `http://localhost:3000`
+This starts the local development server at `http://localhost:3001`
 
 ### 4. Test the API
 ```bash
 # Health check
-curl http://localhost:3000/api/health
+curl http://localhost:3001/api/health
 
 # Basic info
-curl http://localhost:3000/api
+curl http://localhost:3001/api
 
 # Dashboard data
-curl http://localhost:3000/api/dashboard
+curl http://localhost:3001/api/dashboard
 
-# Searches
-curl http://localhost:3000/api/searches?page=1&page_size=10
+# Searches (paginated)
+curl "http://localhost:3001/api/searches?page=1&page_size=10"
+
+# Search locations
+curl http://localhost:3001/api/searches/search-locations
 ```
 
 ## Deployment
 
-### 1. Install Vercel CLI
+The API is deployed on Vercel and connected to the GitHub repository. Pushes to `main` automatically deploy to production.
+
+### Manual Deployment
 ```bash
-npm install -g vercel
+vercel --prod
 ```
 
-### 2. Login to Vercel
-```bash
-vercel login
-```
-
-### 3. Set Environment Variables
-```bash
-vercel env add DATABASE_URL
-vercel env add API_SECRET
-# ... add other environment variables
-```
-
-### 4. Deploy
-```bash
-npm run deploy
-```
+### Environment Variables in Vercel
+Set these in the Vercel dashboard (Settings → Environment Variables):
+- `POSTGRES_URL` - Vercel Postgres connection URL (pooling)
+- `POSTGRES_URL_NON_POOLING` - Direct connection URL
+- `API_SECRET` - Secret key for authenticated endpoints
+- `DO_SPACES_ENDPOINT` - Digital Ocean Spaces endpoint
+- `DO_SPACES_KEY` - Digital Ocean Spaces access key
+- `DO_SPACES_SECRET` - Digital Ocean Spaces secret key
+- `DO_SPACES_BUCKET` - Bucket name for image storage
 
 ## API Endpoints
 
-### Health & Info
-- `GET /api` - Basic API information
+### Core
+- `GET /api` - Basic API information and status
 - `GET /api/health` - Health check with database connectivity test
-
-### Dashboard
-- `GET /api/dashboard` - Dashboard statistics
+- `GET /api/dashboard` - Dashboard statistics and overview
 
 ### Searches
-- `GET /api/searches` - Get all searches (paginated)
-- `GET /api/searches/[search_id]` - Get specific search (TODO)
-- `GET /api/searches/filter` - Filter searches (TODO)
+- `GET /api/searches?page=1&page_size=10` - Get all searches (paginated)
+- `GET /api/searches/search-locations` - Get list of search locations with counts
+- `GET /api/searches/filter` - Filter searches by various criteria
+- `POST /api/create-search` or `/api/createSearch` - Create new search (requires API_SECRET)
+- `POST /api/delete-search` or `/api/deleteSearch` - Delete search (requires API_SECRET)
 
-### Images (TODO)
-- `GET /api/images` - Get all images
-- `GET /api/images/[image_id]` - Get specific image
+### Analytics
+- `GET /api/analytics/geographic` - Geographic distribution of searches
+- `GET /api/analytics/us-states` - US state-level analytics
+- `GET /api/analytics/countries` - Country-level analytics
+- `GET /api/analytics/search-analytics` - Search trends and patterns
+- `GET /api/analytics/vote-analytics` - Voting statistics
+- `GET /api/analytics/recent-activity` - Recent search and vote activity
 
-### Votes (TODO)
-- `GET /api/votes` - Get all votes
-- `POST /api/votes` - Create vote
+### Images
+- `GET /api/images` - Get all images (paginated)
+- `GET /api/images/by-search-id?search_id=123` - Get images for specific search
+- `POST /api/process-images` - Process and download images (requires API_SECRET)
+- `POST /api/delete-image` or `/api/deleteImage` - Delete image (requires API_SECRET)
+- `PUT /api/update-image` or `/api/updateImage` - Update image metadata (requires API_SECRET)
 
-## Migration Status
+### Votes
+- `GET /api/votes` - Get all votes (paginated)
+- `GET /api/votes/by-search-id?search_id=123` - Get votes for specific search
+- `GET /api/votes/by-vote-id?vote_id=1` - Get votes by vote category
+- `POST /api/vote` or `/api/create-vote` - Create new vote (requires API_SECRET)
 
-### ✅ Completed
-- [x] Project structure setup
-- [x] Database connection with serverless pooling
-- [x] CORS and authentication middleware
-- [x] Basic health check endpoint
-- [x] Dashboard endpoint
-- [x] Basic searches endpoint
-- [x] Environment variables configuration
+## Deployment Status
 
-### 🚧 In Progress
-- [ ] All read-only endpoints migration
-- [ ] Authentication for protected endpoints
-- [ ] File upload handling
-- [ ] Worker thread refactoring
+### ✅ Production Ready
+- [x] All read endpoints fully functional
+- [x] All write endpoints implemented
+- [x] Authentication via API_SECRET
+- [x] CORS properly configured
+- [x] Database connection pooling optimized
+- [x] Image processing with Digital Ocean Spaces
+- [x] Geographic analytics with IP geolocation
+- [x] Pagination support across all list endpoints
+- [x] Comprehensive filtering system
+- [x] Deployed to Vercel at https://firewall-api.vercel.app
+- [x] Connected to GitHub repository for auto-deployment
+- [x] Environment-specific configuration with dotenv-flow
 
-### ⏳ Todo
-- [ ] Write operation endpoints (POST/PUT)
-- [ ] Image processing functions
-- [ ] Error handling and logging
-- [ ] Performance optimization
-- [ ] Load testing
+## Architecture
 
-## Differences from Express Version
+### Serverless Functions
+Each API endpoint is a separate serverless function in the `/api` directory, optimized for Vercel's edge network.
 
-1. **Serverless Architecture** - Each endpoint is a separate function
-2. **Connection Pooling** - Optimized for serverless with single connections
-3. **File Structure** - API endpoints organized in `/api` directory
-4. **Environment** - Uses Vercel's environment variable system
-5. **CORS** - Handled via middleware wrapper functions
+### Database
+- **Vercel Postgres** with connection pooling for serverless environments
+- Optimized queries with proper indexing
+- Separate pooling and non-pooling connection URLs
+
+### Storage
+- **Digital Ocean Spaces** for image storage
+- Asynchronous image processing to avoid function timeouts
+- CDN-enabled delivery for optimal performance
+
+### Authentication
+Protected endpoints require `API_SECRET` header for write operations.
 
 ## Development Notes
 
-- Each function has a 10-second timeout (30s max on Pro plan)
-- Database connections are pooled with max 1 connection per function
-- File uploads will need to use Vercel Blob or external storage
-- Worker threads have been replaced with async/await patterns
+- Local server runs on port **3001** (not 3000)
+- Uses `dotenv-flow` for environment-specific configuration
+- Each serverless function has a 10-second timeout (configurable on Pro plan)
+- CORS handled via middleware wrapper functions
+- Image processing is asynchronous to handle large batches
 
 ## Troubleshooting
 
 ### Database Connection Issues
-1. Check `DATABASE_URL` environment variable
-2. Ensure database accepts connections from Vercel IPs
-3. Check network settings and SSL configuration
+1. Verify `POSTGRES_URL` environment variable is set
+2. Check that database accepts connections from Vercel IPs
+3. Ensure SSL is properly configured
+4. Test with `npm start` to run database connection test
 
-### Function Timeouts
-1. Optimize database queries
-2. Add proper indexing
-3. Consider breaking large operations into smaller functions
+### Local Development Issues
+1. Make sure port 3001 is not in use
+2. Verify `.env.local` file exists with all required variables
+3. Check that `node_modules` is installed (`npm install`)
+4. Restart dev server after environment variable changes
 
 ### CORS Issues
 1. Check `vercel.json` headers configuration
-2. Ensure middleware is properly applied
-3. Test with different request methods
+2. Verify middleware is applied via `allowCors()` wrapper
+3. Test with different origins and request methods
+4. Check browser console for specific CORS errors
+
+## Project Structure
+
+```
+firewall-api/
+├── api/                    # Serverless functions
+│   ├── analytics/          # Analytics endpoints
+│   ├── images/             # Image management
+│   ├── searches/           # Search endpoints
+│   ├── votes/              # Voting endpoints
+│   ├── create-search.js    # Create search
+│   ├── create-vote.js      # Create vote
+│   ├── dashboard/          # Dashboard data
+│   └── ...
+├── lib/                    # Shared utilities
+│   ├── db.js              # Database connection
+│   ├── cors.js            # CORS middleware
+│   ├── auth.js            # Authentication
+│   ├── pagination.js      # Pagination helper
+│   ├── filter-builder.js  # Query builder
+│   └── ...
+├── scripts/               # Migration and utility scripts
+├── local-server.js        # Local development server
+└── vercel.json           # Vercel configuration
+```
