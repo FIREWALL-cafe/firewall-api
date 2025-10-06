@@ -10,7 +10,6 @@ const healthHandler = require('./api/health');
 const dashboardHandler = require('./api/dashboard/index');
 const searchesHandler = require('./api/searches/index');
 
-// Analytics handlers
 const geographicAnalyticsHandler = require('./api/analytics/geographic');
 const usStatesAnalyticsHandler = require('./api/analytics/us-states');
 const countriesHandler = require('./api/analytics/countries');
@@ -18,19 +17,15 @@ const searchAnalyticsHandler = require('./api/analytics/search-analytics');
 const voteAnalyticsHandler = require('./api/analytics/vote-analytics');
 const recentActivityHandler = require('./api/analytics/recent-activity');
 
-// Search locations handler
 const searchLocationsHandler = require('./api/searches/search-locations');
 
-// Vote handlers
 const allVotesHandler = require('./api/votes/index');
 const votesBySearchIdHandler = require('./api/votes/by-search-id');
 const votesByVoteIdHandler = require('./api/votes/by-vote-id');
 
-// Image handlers
 const allImagesHandler = require('./api/images/index');
 const imagesBySearchIdHandler = require('./api/images/by-search-id');
 
-// Write operation handlers (Phase 3)
 const createSearchHandler = require('./api/create-search');
 const createVoteHandler = require('./api/create-vote');
 const deleteSearchHandler = require('./api/delete-search');
@@ -47,11 +42,9 @@ const PORT = 3001;
 async function handleRequest(req, res, handler) {
   const parsedUrl = url.parse(req.url, true);
 
-  // Add query to req object
   req.query = parsedUrl.query || {};
   req.method = req.method;
 
-  // Parse body for POST requests
   if (req.method === 'POST' || req.method === 'PUT') {
     let body = '';
     req.on('data', chunk => {
@@ -92,7 +85,6 @@ const server = http.createServer(async (req, res) => {
   try {
     switch (pathname) {
       case '/api':
-      case '/api/':
         await handleRequest(req, res, indexHandler);
         break;
       case '/api/health':
@@ -140,28 +132,21 @@ const server = http.createServer(async (req, res) => {
       case '/api/images/by-search-id':
         await handleRequest(req, res, imagesBySearchIdHandler);
         break;
-      // Phase 3: Write operations
-      case '/api/createSearch':
       case '/api/create-search':
         await handleRequest(req, res, createSearchHandler);
         break;
       case '/api/vote':
-      case '/api/create-vote':
         await handleRequest(req, res, createVoteHandler);
         break;
-      case '/api/deleteSearch':
       case '/api/delete-search':
         await handleRequest(req, res, deleteSearchHandler);
         break;
-      case '/api/deleteImage':
       case '/api/delete-image':
         await handleRequest(req, res, deleteImageHandler);
         break;
-      case '/api/updateImage':
       case '/api/update-image':
         await handleRequest(req, res, updateImageHandler);
         break;
-      case '/api/processImages':
       case '/api/process-images':
         await handleRequest(req, res, processImagesHandler);
         break;
@@ -210,9 +195,9 @@ server.listen(PORT, () => {
   console.log('  POST /api/delete-image (requires secret)');
   console.log('  PUT  /api/update-image (requires secret)');
   console.log('\n✏️  Write Operations (require secret):');
-  console.log('  POST /api/createSearch or /api/create-search');
-  console.log('  POST /api/deleteSearch or /api/delete-search');
+  console.log('  POST /api/create-search');
+  console.log('  POST /api/delete-search');
   console.log('\n💡 Two-step image workflow:');
-  console.log('  1. POST /api/createSearch → returns {searchId}');
+  console.log('  1. POST /api/create-search → returns {searchId}');
   console.log('  2. POST /api/process-images → processes 18 images');
 });
