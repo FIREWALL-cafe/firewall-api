@@ -93,7 +93,7 @@ async function handler(req, res) {
     // Then get paginated data
     const dataQuery = baseQuery + `
       GROUP BY s.search_id
-      ORDER BY s.search_timestamp DESC
+      ORDER BY s.search_id DESC
       LIMIT $1 OFFSET $2
     `;
 
