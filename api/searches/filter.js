@@ -47,6 +47,7 @@ async function handler(req, res) {
         search_term_initial_language_code,
         search_term_translation,
         search_engine_translation,
+        search_term_status_banned,
         COUNT(hv.vote_id) as "total_votes"
       FROM searches s
       LEFT JOIN have_votes hv ON s.search_id = hv.search_id
