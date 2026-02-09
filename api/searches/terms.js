@@ -1,4 +1,3 @@
-// Searches by term endpoint - ported from queries.js getSearchesByTermWithImages
 const { allowCors } = require('../../lib/cors');
 const { query } = require('../../lib/db');
 const { getPaginationParams, formatPaginatedResponse } = require('../../lib/pagination');
@@ -10,7 +9,7 @@ async function handler(req, res) {
       return res.status(400).json({ error: 'term parameter is required' });
     }
 
-    console.log('getSearchesByTermWithImages:', term);
+    console.log('Searches by term endpoint called with term:', term);
 
     const { page, pageSize, offset } = getPaginationParams(req.query);
 
@@ -48,8 +47,12 @@ async function handler(req, res) {
       ${excludeFilter}
     `;
 
+    console.log('Full count query:', countQuery);
+    console.log('Query params:', [term]);
+
     const countResult = await query(countQuery, [term]);
     const total = parseInt(countResult.rows[0].count);
+    console.log('Count result:', total);
 
     // Get paginated data
     const dataQuery = `
