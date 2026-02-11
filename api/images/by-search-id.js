@@ -16,27 +16,19 @@ async function handler(req, res) {
     console.log('Images by search ID endpoint called:', search_id);
 
     const sqlQuery = `
-      SELECT i.image_id, i.image_search_engine, i.image_href, i.image_href_original, i.image_rank, i.image_mime_type, i.image_data
+      SELECT i.image_id, i.image_search_engine, i.image_href, i.image_href_original, i.image_rank, i.image_mime_type,
+        CASE WHEN (i.image_href IS NULL OR i.image_href = '') AND i.image_data IS NOT NULL
+          THEN 'data:' || COALESCE(i.image_mime_type, 'image/jpeg') || ';base64,' || encode(i.image_data, 'base64')
+          ELSE NULL
+        END as image_data
       FROM searches s
       FULL JOIN images i ON s.search_id = i.search_id
-      WHERE s.search_id = $1 AND (i.image_href <> '' OR i.image_href IS NOT NULL OR i.image_data IS NOT NULL)
+      WHERE s.search_id = $1
+        AND ((i.image_href IS NOT NULL AND i.image_href <> '') OR i.image_data IS NOT NULL)
     `;
 
     const results = await query(sqlQuery, [search_id]);
-
-    // Convert binary image_data to base64 data URI for old records
-    const rows = results.rows.map(row => {
-      if (row.image_data && !row.image_href) {
-        const mime = row.image_mime_type || 'image/jpeg';
-        const base64 = Buffer.from(row.image_data).toString('base64');
-        row.image_data = `data:${mime};base64,${base64}`;
-      } else {
-        delete row.image_data;
-      }
-      return row;
-    });
-
-    res.status(200).json(rows);
+    res.status(200).json(results.rows);
 
   } catch (error) {
     console.error('Images by search ID endpoint error:', error);
