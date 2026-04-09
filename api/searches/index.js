@@ -1,4 +1,3 @@
-// Searches endpoint - Migration from queries.js getAllSearches
 const { allowCors } = require('../../lib/cors');
 const { query } = require('../../lib/db');
 
@@ -32,18 +31,17 @@ async function handler(req, res) {
     const page_size = parseInt(req.query.page_size) || 100;
     const offset = (page - 1) * page_size;
 
-    // Use our query builder for field selection
     const fields = getFieldSet('all');
 
-    // Get total count
     const countQuery = 'SELECT COUNT(*) FROM searches s';
     const countResult = await query(countQuery);
     const total = parseInt(countResult.rows[0]?.count || 0);
 
-    // Get paginated data
     const dataQuery = `
-      SELECT ${fields}
+      SELECT ${fields}, COUNT(hv.vote_id)::int AS total_votes
       FROM searches s
+      LEFT JOIN have_votes hv ON s.search_id = hv.search_id
+      GROUP BY s.search_id
       ORDER BY s.search_timestamp DESC
       LIMIT $1 OFFSET $2
     `;

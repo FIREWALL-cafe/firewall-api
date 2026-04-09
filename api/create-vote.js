@@ -18,7 +18,7 @@ async function handler(req, res) {
 
     // Get vote count for this search and vote type
     const countQuery = `
-      SELECT hv.vote_id, v.vote_name, COUNT(hv.vote_id) as vote_count
+      SELECT hv.vote_id, v.vote_name, COUNT(hv.vote_id)::int as vote_count
       FROM votes v
       LEFT JOIN have_votes hv ON v.vote_id = hv.vote_id AND hv.search_id = $1
       WHERE v.vote_id = $2
