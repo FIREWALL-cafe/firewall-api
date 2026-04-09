@@ -59,6 +59,7 @@ async function handler(req, res) {
       SELECT s.search_id, s.search_timestamp, search_location, search_ip_address,
         search_client_name, search_engine_initial, search_term_initial, search_term_initial_language_code,
         search_term_translation, search_engine_translation, search_term_status_banned,
+        search_country, search_country_code, search_region, search_city,
         COUNT(hv.vote_id) as "total_votes"
       FROM searches s
       LEFT JOIN have_votes hv ON s.search_id = hv.search_id
