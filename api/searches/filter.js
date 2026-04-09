@@ -55,8 +55,9 @@ async function handler(req, res) {
     `;
 
     let countQuery = `
-      SELECT COUNT(*)
+      SELECT COUNT(DISTINCT s.search_id)
       FROM searches s
+      LEFT JOIN have_votes hv ON s.search_id = hv.search_id
       WHERE s.search_location != 'nyc3' AND s.search_location != 'automated_scraper'
     `;
 
