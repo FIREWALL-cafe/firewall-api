@@ -48,7 +48,8 @@ async function handler(req, res) {
         search_term_translation,
         search_engine_translation,
         search_term_status_banned,
-        COUNT(hv.vote_id) as "total_votes"
+        COUNT(hv.vote_id) as "total_votes",
+        COUNT(DISTINCT hv.vote_ip_address) as "unique_voters"
       FROM searches s
       LEFT JOIN have_votes hv ON s.search_id = hv.search_id
       WHERE s.search_location != 'nyc3' AND s.search_location != 'automated_scraper'

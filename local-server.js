@@ -23,6 +23,9 @@ const searchLocationsHandler = require('./api/searches/search-locations');
 const allVotesHandler = require('./api/votes/index');
 const votesBySearchIdHandler = require('./api/votes/by-search-id');
 const votesByVoteIdHandler = require('./api/votes/by-vote-id');
+const voteCountsBySearchIdHandler = require('./api/votes/counts-by-search-id');
+const updateVoteHandler = require('./api/update-vote');
+const deleteVoteHandler = require('./api/delete-vote');
 
 const allImagesHandler = require('./api/images/index');
 const imagesBySearchIdHandler = require('./api/images/by-search-id');
@@ -46,7 +49,7 @@ async function handleRequest(req, res, handler) {
   req.query = parsedUrl.query || {};
   req.method = req.method;
 
-  if (req.method === 'POST' || req.method === 'PUT') {
+  if (req.method === 'POST' || req.method === 'PUT' || req.method === 'DELETE') {
     let body = '';
     req.on('data', chunk => {
       body += chunk.toString();
@@ -130,6 +133,15 @@ const server = http.createServer(async (req, res) => {
       case '/api/votes/by-vote-id':
         await handleRequest(req, res, votesByVoteIdHandler);
         break;
+      case '/api/votes/counts-by-search-id':
+        await handleRequest(req, res, voteCountsBySearchIdHandler);
+        break;
+      case '/api/update-vote':
+        await handleRequest(req, res, updateVoteHandler);
+        break;
+      case '/api/delete-vote':
+        await handleRequest(req, res, deleteVoteHandler);
+        break;
       case '/api/images':
         await handleRequest(req, res, allImagesHandler);
         break;
@@ -193,7 +205,9 @@ server.listen(PORT, () => {
   console.log('  GET  /api/votes');
   console.log('  GET  /api/votes/by-search-id?search_id=1');
   console.log('  GET  /api/votes/by-vote-id?vote_id=1');
+  console.log('  GET  /api/votes/counts-by-search-id?search_id=1');
   console.log('  POST /api/vote (requires secret)');
+  console.log('  PUT  /api/update-vote (requires secret)');
   console.log('\n🖼️  Images:');
   console.log('  GET  /api/images');
   console.log('  GET  /api/images/by-search-id?search_id=1');

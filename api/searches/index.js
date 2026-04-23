@@ -38,7 +38,7 @@ async function handler(req, res) {
     const total = parseInt(countResult.rows[0]?.count || 0);
 
     const dataQuery = `
-      SELECT ${fields}, COUNT(hv.vote_id)::int AS total_votes
+      SELECT ${fields}, COUNT(hv.vote_id)::int AS total_votes, COUNT(DISTINCT hv.vote_ip_address)::int AS unique_voters
       FROM searches s
       LEFT JOIN have_votes hv ON s.search_id = hv.search_id
       GROUP BY s.search_id
