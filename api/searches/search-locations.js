@@ -29,7 +29,18 @@ async function handler(req, res) {
     `;
 
     const results = await query(sqlQuery, [searchLocations]);
-    res.status(200).json(results.rows);
+
+    const eventByLocation = Object.fromEntries(eventData.map(e => [e.search_location, e]));
+    const rows = results.rows.map(row => ({
+      ...row,
+      year: eventByLocation[row.search_location]
+        ? new Date(eventByLocation[row.search_location].start_date).getFullYear()
+        : null,
+    }));
+
+    rows.sort((a, b) => (b.year || 0) - (a.year || 0));
+
+    res.status(200).json(rows);
 
   } catch (error) {
     console.error('Search locations endpoint error:', error);
