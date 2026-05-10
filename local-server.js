@@ -17,8 +17,10 @@ const searchAnalyticsHandler = require('./api/analytics/search-analytics');
 const voteAnalyticsHandler = require('./api/analytics/vote-analytics');
 const imageAnalyticsHandler = require('./api/analytics/image-analytics');
 const recentActivityHandler = require('./api/analytics/recent-activity');
+const yearsHandler = require('./api/analytics/years');
 
 const searchLocationsHandler = require('./api/searches/search-locations');
+const searchTermsHandler = require('./api/searches/terms');
 
 const allVotesHandler = require('./api/votes/index');
 const votesBySearchIdHandler = require('./api/votes/by-search-id');
@@ -103,6 +105,9 @@ const server = http.createServer(async (req, res) => {
       case '/api/searches/search-locations':
         await handleRequest(req, res, searchLocationsHandler);
         break;
+      case '/api/searches/terms':
+        await handleRequest(req, res, searchTermsHandler);
+        break;
       case '/api/analytics/geographic':
         await handleRequest(req, res, geographicAnalyticsHandler);
         break;
@@ -111,6 +116,9 @@ const server = http.createServer(async (req, res) => {
         break;
       case '/api/analytics/countries':
         await handleRequest(req, res, countriesHandler);
+        break;
+      case '/api/analytics/years':
+        await handleRequest(req, res, yearsHandler);
         break;
       case '/api/analytics/search-analytics':
         await handleRequest(req, res, searchAnalyticsHandler);
@@ -197,6 +205,7 @@ server.listen(PORT, () => {
   console.log('  GET  /api/analytics/geographic');
   console.log('  GET  /api/analytics/us-states');
   console.log('  GET  /api/analytics/countries');
+  console.log('  GET  /api/analytics/years');
   console.log('  GET  /api/analytics/search-analytics');
   console.log('  GET  /api/analytics/vote-analytics');
   console.log('  GET  /api/analytics/image-analytics');
